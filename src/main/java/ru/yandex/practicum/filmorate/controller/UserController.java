@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exception.ExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserIdGen;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -18,27 +19,24 @@ public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
 
-    @PostMapping(value = "/users")
-    public User addUser(@RequestBody User user) throws ValidationException, ExistException {
+    @PostMapping("/users")
+    public User addUser(@RequestBody User user) throws ValidationException, ExistException, NotFoundException {
         log.debug("Запрос на добавление пользователья");
         validation(user);
         if (users.values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
             log.info("Пользователь уже существует " + user.getEmail());
             throw new ExistException(user.getEmail());
         }
+        user.setId(UserIdGen.genId());
         users.put(user.getId(), user);
         log.info("User added");
         return user;
     }
 
-    @PatchMapping(value = "/users")
+    @PutMapping("/users")
     public User patchUser(@RequestBody User user) throws ValidationException, NotFoundException {
         log.debug("Запрос на изменения пользователья");
         validation(user);
-        if (users.values().stream().noneMatch(u -> u.getEmail().equals(user.getEmail()))) {
-            log.info("Пользователь не найден " + user.getEmail());
-            throw new NotFoundException(user.getEmail());
-        }
         users.put(user.getId(), user);
         log.info("User patched");
         return user;
@@ -50,9 +48,13 @@ public class UserController {
         return new ArrayList<>(users.values());
     }
 
-    public void validation(User user) throws ValidationException {
-        if (user.getEmail().isEmpty() || !user.getEmail().contains(AT)) {
-            log.error("Неверный формат ввода Email");
+    public void validation(User user) throws ValidationException, NotFoundException {
+        if (user.getId() < 0) {
+            log.error("Неверный id");
+            throw new NotFoundException("Неверный id");
+        }
+        if (user.getEmail().isEmpty() || !(user.getEmail().contains(AT))) {
+            log.error("Неверный формат ввода Email " + user.getEmail());
             throw new ValidationException("Неверный почтовый адрес");
         }
         if (user.getLogin().isEmpty() || user.getLogin().contains(SPACE)) {

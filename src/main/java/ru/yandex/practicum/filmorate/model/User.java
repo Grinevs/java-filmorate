@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class User {
-    private int id = UserIdGen.genId();
+    private int id;
     private String email;
     private String login;
     private String name;

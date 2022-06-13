@@ -9,12 +9,9 @@ import java.time.LocalDateTime;
 
 @Data
 public class Film {
-    private int id = FilmIdGen.genId();
+    private int id;
     private String description;
     private String name;
     private LocalDate releaseDate;
-    private Duration duration;
-
-
-
+    private int duration;
 }

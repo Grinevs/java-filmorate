@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ExistException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -14,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class UserControllerTest {
 
     @Test
-    public void createUser() throws ValidationException, ExistException {
+    public void createUser() throws ValidationException, ExistException, NotFoundException {
         User user = new User();
         user.setName("Name");
         user.setLogin("Name");
@@ -65,7 +66,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void invalidName() throws ValidationException, ExistException {
+    public void invalidName() throws ValidationException, ExistException, NotFoundException {
         User user = new User();
         user.setName("");
         user.setLogin("Name");
@@ -73,11 +74,11 @@ public class UserControllerTest {
         user.setBirthday(LocalDate.of(2000,01,01));
         UserController userController = new UserController();
         userController.addUser(user);
-        assertEquals(user.getLogin(), userController.getUsers().get(user.getId()).getName());
+        assertEquals(user.getLogin(), user.getName());
     }
 
     @Test
-    public void matchEmails() throws ValidationException, ExistException {
+    public void matchEmails() throws ValidationException, ExistException, NotFoundException {
         User user = new User();
         user.setName("1");
         user.setLogin("Name");

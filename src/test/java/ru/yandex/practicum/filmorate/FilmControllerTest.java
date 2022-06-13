@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ExistException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -16,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class FilmControllerTest {
 
     @Test
-    public void createFilm() throws ValidationException, ExistException {
+    public void createFilm() throws ValidationException, ExistException, NotFoundException {
         Film film = new Film();
         film.setName("film");
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(2020,01,01)));
-        film.setDuration(Duration.ofMinutes(120));
+        film.setDuration(120);
         FilmController filmController = new FilmController();
         filmController.addFilm(film);
         assertEquals(1, filmController.getAllFilms().size());
@@ -33,7 +34,7 @@ public class FilmControllerTest {
         film.setName("");
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(2020,01,01)));
-        film.setDuration(Duration.ofMinutes(120));
+        film.setDuration(120);
         FilmController filmController = new FilmController();
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
@@ -46,7 +47,7 @@ public class FilmControllerTest {
         film.setName("film");
         film.setDescription("description".repeat(100));
         film.setReleaseDate((LocalDate.of(2020,01,01)));
-        film.setDuration(Duration.ofMinutes(120));
+        film.setDuration(120);
         FilmController filmController = new FilmController();
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
@@ -59,7 +60,7 @@ public class FilmControllerTest {
         film.setName("film");
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(1800,01,01)));
-        film.setDuration(Duration.ofMinutes(120));
+        film.setDuration(120);
         FilmController filmController = new FilmController();
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
@@ -72,8 +73,7 @@ public class FilmControllerTest {
         film.setName("film");
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(2020,01,01)));
-        Duration duration = Duration.between(LocalDateTime.now().plusHours(1), LocalDateTime.now());
-        film.setDuration(duration);
+        film.setDuration(-5);
         FilmController filmController = new FilmController();
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
