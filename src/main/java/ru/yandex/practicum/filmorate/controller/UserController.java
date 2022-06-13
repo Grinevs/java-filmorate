@@ -19,7 +19,7 @@ public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
 
     @PostMapping(value = "/users")
-    public User create(@RequestBody User user) throws ValidationException, ExistException {
+    public User addUser(@RequestBody User user) throws ValidationException, ExistException {
         log.debug("Запрос на добавление пользователья");
         validation(user);
         if (users.values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
@@ -39,6 +39,7 @@ public class UserController {
             log.info("Пользователь не найден " + user.getEmail());
             throw new NotFoundException(user.getEmail());
         }
+        users.put(user.getId(), user);
         log.info("User patched");
         return user;
     }

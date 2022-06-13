@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 public class FilmController {
     private final int MAX_DESCRIPTION_LENGTH = 200;
-    private final LocalDate RELEASE_DATE = LocalDate.of(1966, 12, 28);
+    private final LocalDate RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
     private final Map<Integer, Film> films = new HashMap<>();
     @PostMapping(value = "/films")
@@ -42,6 +42,7 @@ public class FilmController {
             log.info("Фильм не найден " + film.getName());
             throw new NotFoundException(film.getName());
         }
+        films.put(film.getId(), film);
         log.info("Film patched");
         return film;
     }
@@ -61,7 +62,7 @@ public class FilmController {
             log.error("Описание длинной свыше " + MAX_DESCRIPTION_LENGTH);
             throw new ValidationException("Описание свыше 200 сомволов");
         }
-        if (film.getReleaseDate().isBefore(ChronoLocalDateTime.from(RELEASE_DATE))) {
+        if (film.getReleaseDate().isBefore(RELEASE_DATE)) {
             log.error("Дата выхода раньше " + RELEASE_DATE);
             throw new ValidationException("Фильм должен быть новее " + RELEASE_DATE);
         }
