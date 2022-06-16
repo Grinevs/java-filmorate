@@ -17,6 +17,7 @@ import java.util.*;
 public class UserController {
     private final String AT = "@";
     private final String SPACE = " ";
+
     private final UserIdGenerator userIdGenerator;
     private final Map<Integer, User> users = new HashMap<>();
 
