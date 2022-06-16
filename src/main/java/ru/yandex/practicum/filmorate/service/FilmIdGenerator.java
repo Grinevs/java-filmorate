@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 public class FilmIdGenerator {
     private int id = 1;
 
-    public int genId() {
+    public int generateId() {
         return id++;
     }
 }

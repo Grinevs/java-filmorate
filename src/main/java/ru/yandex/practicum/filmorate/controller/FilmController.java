@@ -18,23 +18,23 @@ import java.util.Map;
 @Slf4j
 @RestController
 public class FilmController {
-    @Autowired
-    private FilmIdGenerator filmIdGenerator;
     private final int MAX_DESCRIPTION_LENGTH = 200;
     private final LocalDate RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
+    @Autowired
+    private FilmIdGenerator filmIdGenerator;
     private final Map<Integer, Film> films = new HashMap<>();
 
 
     @PostMapping("/films")
     public Film addFilm(@RequestBody Film film) throws ValidationException, NotFoundException {
-        log.debug("Запрос на добавление фильма id={}, Name={}",film.getId(), film.getName());
+        log.debug("Запрос на добавление фильма id={}, Name={}", film.getId(), film.getName());
         validation(film);
         if (films.values().stream().anyMatch(f -> f.getName().equals(film.getName()))) {
             log.info("Фильм уже существует " + film.getName());
             throw new ExistException(film.getName());
         }
-        film.setId(filmIdGenerator.genId());
+        film.setId(filmIdGenerator.generateId());
         films.put(film.getId(), film);
         log.info("Фильм добавлен id={}, Name={}", film.getId() ,film.getName());
         return film;

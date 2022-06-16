@@ -15,11 +15,10 @@ import java.util.*;
 @Slf4j
 @RestController
 public class UserController {
-    @Autowired
-    private UserIdGenerator userIdGenerator;
     private final String AT = "@";
     private final String SPACE = " ";
-
+    @Autowired
+    private UserIdGenerator userIdGenerator;
     private final Map<Integer, User> users = new HashMap<>();
 
     @PostMapping("/users")
@@ -30,7 +29,7 @@ public class UserController {
             log.info("Пользователь уже существует " + user.getEmail());
             throw new ExistException(user.getEmail());
         }
-        user.setId(userIdGenerator.genId());
+        user.setId(userIdGenerator.generateId());
         users.put(user.getId(), user);
         log.info("Пользователь добавлен id={}",user.getId());
         return user;
