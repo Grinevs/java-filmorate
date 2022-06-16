@@ -17,9 +17,12 @@ import java.util.*;
 public class UserController {
     private final String AT = "@";
     private final String SPACE = " ";
-    @Autowired
-    private UserIdGenerator userIdGenerator;
+    private final UserIdGenerator userIdGenerator;
     private final Map<Integer, User> users = new HashMap<>();
+
+    public UserController(UserIdGenerator userIdGenerator) {
+        this.userIdGenerator = userIdGenerator;
+    }
 
     @PostMapping("/users")
     public User addUser(@RequestBody User user) throws ValidationException, ExistException, NotFoundException {

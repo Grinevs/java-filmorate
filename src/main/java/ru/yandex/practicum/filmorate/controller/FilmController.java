@@ -21,9 +21,12 @@ public class FilmController {
     private final int MAX_DESCRIPTION_LENGTH = 200;
     private final LocalDate RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
-    @Autowired
-    private FilmIdGenerator filmIdGenerator;
+    private final FilmIdGenerator filmIdGenerator;
     private final Map<Integer, Film> films = new HashMap<>();
+
+    public FilmController(FilmIdGenerator filmIdGenerator) {
+        this.filmIdGenerator = filmIdGenerator;
+    }
 
 
     @PostMapping("/films")

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
+@SpringBootTest
 public class FilmControllerTest {
 
     @Test
@@ -23,7 +24,8 @@ public class FilmControllerTest {
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(2020, 01, 01)));
         film.setDuration(120);
-        FilmController filmController = new FilmController();
+        FilmIdGenerator filmIdGenerator = new FilmIdGenerator();
+        FilmController filmController = new FilmController(filmIdGenerator);
         filmController.addFilm(film);
         assertEquals(1, filmController.getAllFilms().size());
     }
@@ -35,7 +37,8 @@ public class FilmControllerTest {
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(2020, 01, 01)));
         film.setDuration(120);
-        FilmController filmController = new FilmController();
+        FilmIdGenerator filmIdGenerator = new FilmIdGenerator();
+        FilmController filmController = new FilmController(filmIdGenerator);
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
         });
@@ -48,7 +51,8 @@ public class FilmControllerTest {
         film.setDescription("description".repeat(100));
         film.setReleaseDate((LocalDate.of(2020, 01, 01)));
         film.setDuration(120);
-        FilmController filmController = new FilmController();
+        FilmIdGenerator filmIdGenerator = new FilmIdGenerator();
+        FilmController filmController = new FilmController(filmIdGenerator);
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
         });
@@ -61,7 +65,8 @@ public class FilmControllerTest {
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(1800, 01, 01)));
         film.setDuration(120);
-        FilmController filmController = new FilmController();
+        FilmIdGenerator filmIdGenerator = new FilmIdGenerator();
+        FilmController filmController = new FilmController(filmIdGenerator);
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
         });
@@ -74,7 +79,8 @@ public class FilmControllerTest {
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(2020, 01, 01)));
         film.setDuration(-5);
-        FilmController filmController = new FilmController();
+        FilmIdGenerator filmIdGenerator = new FilmIdGenerator();
+        FilmController filmController = new FilmController(filmIdGenerator);
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
         });
