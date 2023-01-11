@@ -27,7 +27,7 @@ public class UserController {
 
     @PostMapping("/users")
     public User addUser(@RequestBody User user) throws ValidationException, ExistException, NotFoundException {
-        log.debug("Запрос на добавление пользователя id={}, Email={}",user.getId(), user.getEmail());
+        log.debug("Запрос на добавление пользователя id={}, Email={}", user.getId(), user.getEmail());
         validation(user);
         if (users.values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
             log.info("Пользователь уже существует " + user.getEmail());
@@ -35,16 +35,20 @@ public class UserController {
         }
         user.setId(userIdGenerator.generateId());
         users.put(user.getId(), user);
-        log.info("Пользователь добавлен id={}",user.getId());
+        log.info("Пользователь добавлен id={}", user.getId());
         return user;
     }
 
     @PutMapping("/users")
     public User patchUser(@RequestBody User user) throws ValidationException, NotFoundException {
-        log.debug("Запрос на изменения пользователья id={}, Email={}",user.getId(), user.getEmail());
+        log.debug("Запрос на изменения пользователья id={}, Email={}", user.getId(), user.getEmail());
+        if (!users.containsKey(user.getId())) {
+            log.error("Несуществует id={}", user.getId());
+            throw new NotFoundException("id несуществует");
+        }
         validation(user);
         users.put(user.getId(), user);
-        log.info("Пользователь изменен id={}",user.getId());
+        log.info("Пользователь изменен id={}", user.getId());
         return user;
     }
 
@@ -56,7 +60,7 @@ public class UserController {
 
     public void validation(User user) throws ValidationException, NotFoundException {
         if (user.getId() < 0) {
-            log.error("Неверныйi id={}", user.getId());
+            log.error("Неверный id={}", user.getId());
             throw new NotFoundException("Неверный id");
         }
         if (user.getEmail().isEmpty() || !(user.getEmail().contains(AT))) {
@@ -67,7 +71,7 @@ public class UserController {
             log.error("Неверный формат ввода логина id={}", user.getId());
             throw new ValidationException("Неправильно введен логин");
         }
-        if (user.getName().isEmpty()) {
+        if (user.getName() == null || user.getName().isEmpty()) {
             log.info("Используется логин в качестве имени id={}", user.getId());
             user.setName(user.getLogin());
         }
