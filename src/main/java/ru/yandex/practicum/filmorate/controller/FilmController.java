@@ -46,6 +46,10 @@ public class FilmController {
     @PutMapping("/films")
     public Film patchFilm(@RequestBody Film film) throws NotFoundException, ValidationException {
         log.debug("Запрос на изменения фильма id={}, Name={}",film.getId(), film.getName());
+        if (!films.containsKey(film.getId())) {
+            log.error("Несуществующий id={}", film.getId());
+            throw new NotFoundException("Несуществующий id");
+        }
         validation(film);
         films.put(film.getId(), film);
         log.info("Фильм изменен id={}, Name={}", film.getId() ,film.getName());
