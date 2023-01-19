@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmIdGenerator;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,11 +22,10 @@ public class FilmController {
     private final int MAX_DESCRIPTION_LENGTH = 200;
     private final LocalDate RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
-    private final FilmIdGenerator filmIdGenerator;
     private final Map<Integer, Film> films = new HashMap<>();
-
-    public FilmController(FilmIdGenerator filmIdGenerator) {
-        this.filmIdGenerator = filmIdGenerator;
+    private final InMemoryFilmStorage filmStorage;
+    public FilmController(InMemoryFilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
     }
 
 
@@ -32,12 +33,7 @@ public class FilmController {
     public Film addFilm(@RequestBody Film film) throws ValidationException, NotFoundException {
         log.debug("Запрос на добавление фильма id={}, Name={}", film.getId(), film.getName());
         validation(film);
-        if (films.values().stream().anyMatch(f -> f.getName().equals(film.getName()))) {
-            log.info("Фильм уже существует " + film.getName());
-            throw new ExistException(film.getName());
-        }
-        film.setId(filmIdGenerator.generateId());
-        films.put(film.getId(), film);
+        filmStorage.addFilm(film);
         log.info("Фильм добавлен id={}, Name={}", film.getId() ,film.getName());
         return film;
     }
@@ -45,12 +41,8 @@ public class FilmController {
     @PutMapping("/films")
     public Film patchFilm(@RequestBody Film film) throws NotFoundException, ValidationException {
         log.debug("Запрос на изменения фильма id={}, Name={}",film.getId(), film.getName());
-        if (!films.containsKey(film.getId())) {
-            log.error("Несуществующий id={}", film.getId());
-            throw new NotFoundException("Несуществующий id");
-        }
         validation(film);
-        films.put(film.getId(), film);
+        filmStorage.patchFilm(film);
         log.info("Фильм изменен id={}, Name={}", film.getId() ,film.getName());
         return film;
     }
@@ -58,7 +50,7 @@ public class FilmController {
     @GetMapping("/films")
     public List<Film> getAllFilms() {
         log.debug("Запрос на получение данных всех фильмов");
-        return new ArrayList<>(films.values());
+        return filmStorage.getAllFilms();
     }
 
     public void validation(Film film) throws ValidationException, NotFoundException {
