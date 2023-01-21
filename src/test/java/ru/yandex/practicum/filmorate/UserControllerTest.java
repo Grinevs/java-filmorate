@@ -1,14 +1,14 @@
 package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmIdGenerator;
 import ru.yandex.practicum.filmorate.service.UserIdGenerator;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.UserValidator;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -25,8 +25,11 @@ public class UserControllerTest {
         user.setLogin("Name");
         user.setEmail("test@test.com");
         user.setBirthday(LocalDate.of(1999,01,01));
-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
-        UserController userController = new UserController(userStorage);
+        UserValidator userValidator = new UserValidator();
+        UserIdGenerator userIdGenerator = new UserIdGenerator();
+        InMemoryUserStorage userStorage = new InMemoryUserStorage(userIdGenerator, userValidator);
+        UserService userService = new UserService(userStorage);
+        UserController userController = new UserController(userService);
         userController.addUser(user);
         assertEquals(1, userController.getUsers().size());
     }
@@ -38,8 +41,11 @@ public class UserControllerTest {
         user.setLogin("");
         user.setEmail("test@test.com");
         user.setBirthday(LocalDate.of(1999,01,01));
-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
-        UserController userController = new UserController(userStorage);
+        UserValidator userValidator = new UserValidator();
+        UserIdGenerator userIdGenerator = new UserIdGenerator();
+        InMemoryUserStorage userStorage = new InMemoryUserStorage(userIdGenerator, userValidator);
+        UserService userService = new UserService(userStorage);
+        UserController userController = new UserController(userService);
         assertThrows(ValidationException.class, () -> {
             userController.addUser(user);
         });
@@ -52,8 +58,11 @@ public class UserControllerTest {
         user.setLogin("Name");
         user.setEmail("test.com");
         user.setBirthday(LocalDate.of(1999,01,01));
-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
-        UserController userController = new UserController(userStorage);
+        UserValidator userValidator = new UserValidator();
+        UserIdGenerator userIdGenerator = new UserIdGenerator();
+        InMemoryUserStorage userStorage = new InMemoryUserStorage(userIdGenerator, userValidator);
+        UserService userService = new UserService(userStorage);
+        UserController userController = new UserController(userService);
         assertThrows(ValidationException.class, () -> {
             userController.addUser(user);
         });
@@ -66,8 +75,11 @@ public class UserControllerTest {
         user.setLogin("Name");
         user.setEmail("test@test.com");
         user.setBirthday(LocalDate.of(2100,01,01));
-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
-        UserController userController = new UserController(userStorage);
+        UserValidator userValidator = new UserValidator();
+        UserIdGenerator userIdGenerator = new UserIdGenerator();
+        InMemoryUserStorage userStorage = new InMemoryUserStorage(userIdGenerator, userValidator);
+        UserService userService = new UserService(userStorage);
+        UserController userController = new UserController(userService);
         assertThrows(ValidationException.class, () -> {
             userController.addUser(user);
         });
@@ -80,8 +92,11 @@ public class UserControllerTest {
         user.setLogin("Name");
         user.setEmail("test@test.com");
         user.setBirthday(LocalDate.of(2000,01,01));
-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
-        UserController userController = new UserController(userStorage);
+        UserValidator userValidator = new UserValidator();
+        UserIdGenerator userIdGenerator = new UserIdGenerator();
+        InMemoryUserStorage userStorage = new InMemoryUserStorage(userIdGenerator, userValidator);
+        UserService userService = new UserService(userStorage);
+        UserController userController = new UserController(userService);
         userController.addUser(user);
         assertEquals(user.getLogin(), user.getName());
     }
@@ -98,8 +113,11 @@ public class UserControllerTest {
         user1.setLogin("Name");
         user1.setEmail("test@test.com");
         user1.setBirthday(LocalDate.of(2000,01,01));
-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
-        UserController userController = new UserController(userStorage);
+        UserValidator userValidator = new UserValidator();
+        UserIdGenerator userIdGenerator = new UserIdGenerator();
+        InMemoryUserStorage userStorage = new InMemoryUserStorage(userIdGenerator, userValidator);
+        UserService userService = new UserService(userStorage);
+        UserController userController = new UserController(userService);
         userController.addUser(user);
         assertThrows(ExistException.class, () -> {
             userController.addUser(user1);
