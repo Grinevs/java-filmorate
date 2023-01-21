@@ -7,10 +7,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserIdGenerator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -31,8 +28,14 @@ public class InMemoryUserStorage implements UserStorage {
     public User addUser(User user) {
         checkExistEmailUser(user);
         user.setId(userIdGenerator.generateId());
+        user.setFriendList(new HashSet<>());
         users.put(user.getId(), user);
         return user;
+    }
+
+    @Override
+    public User getUserById(Integer id) {
+        return users.get(id);
     }
 
     @Override

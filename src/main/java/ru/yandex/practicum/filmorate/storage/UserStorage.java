@@ -10,5 +10,7 @@ public interface UserStorage {
 
     User addUser(User user);
 
+    User getUserById(Integer id);
+
     User patchUser(User user) throws NotFoundException;
 }
