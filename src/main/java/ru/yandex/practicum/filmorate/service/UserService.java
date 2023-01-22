@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService {
     private final UserStorage userStorage;
@@ -20,6 +22,8 @@ public class UserService {
     }
 
     public User addFriend(User user, Integer friendId) throws NotFoundException, ValidationException {
+        userStorage.checkIdUser(user);
+        userStorage.checkIdUser(userStorage.getUserById(friendId));
         user.getFriendList().add(friendId);
         User friend = userStorage.getUserById(friendId);
         friend.getFriendList().add(user.getId());
@@ -40,11 +44,11 @@ public class UserService {
         return user;
     }
 
-    public Set<Integer> commonFriends(User user, User friend) {
-        Set<Integer> listCommonFriends = new HashSet<>();
-        listCommonFriends = user.getFriendList().stream().filter(f->
+    public List<User> getCommonFriends(User user, User friend) {
+        log.info("Запрос общих друзей между id={} и friendId={}", user.getId(), friend.getId());
+        Set<Integer> listCommonFriends = user.getFriendList().stream().filter(f->
                 friend.getFriendList().contains(f)).collect(Collectors.toSet());
-        return listCommonFriends;
+        return idSetToUserList(listCommonFriends);
     }
 
     public User addUser(User user) throws ValidationException, NotFoundException {
@@ -61,7 +65,23 @@ public class UserService {
         return userStorage.getUserList();
     }
 
-    public User getUserById(Integer id) {
+    public User getUserById(Integer id) throws NotFoundException {
         return userStorage.getUserById(id);
+    }
+
+    public List<User> getFriends(Integer id) throws NotFoundException {
+        return idSetToUserList(userStorage.getUserById(id).getFriendList());
+    }
+
+    private List<User> idSetToUserList(Set<Integer> friendsIdSet) {
+        List<User> userList = friendsIdSet.stream()
+                .map(u -> {
+                    try {
+                        return userStorage.getUserById(u);
+                    } catch (NotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).collect(Collectors.toList());
+        return userList;
     }
 }

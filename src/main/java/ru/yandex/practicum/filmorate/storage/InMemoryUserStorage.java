@@ -42,7 +42,11 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(Integer id) {
+    public User getUserById(Integer id) throws NotFoundException {
+        log.debug("Запрос на получение данных пользовталя id={}", id);
+        if (!users.containsKey(id)) {
+            log.error("Несуществует id={}", id);
+            throw new NotFoundException("id несуществует");}
         return users.get(id);
     }
 
@@ -51,12 +55,14 @@ public class InMemoryUserStorage implements UserStorage {
         log.debug("Запрос на изменения пользователья id={}, Email={}", user.getId(), user.getEmail());
         userValidator.validation(user);
         checkIdUser(user);
+        user.setFriendList(users.get(user.getId()).getFriendList());
         users.put(user.getId(), user);
         log.info("Пользователь изменен id={}", user.getId());
         return user;
     }
 
-    private void checkIdUser(User user) throws NotFoundException {
+    @Override
+    public void checkIdUser(User user) throws NotFoundException {
         if (!users.containsKey(user.getId())) {
             log.error("Несуществует id={}", user.getId());
             throw new NotFoundException("id несуществует");

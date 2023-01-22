@@ -13,4 +13,5 @@ public class Film {
     private LocalDate releaseDate;
     private int duration;
     private Set<Integer> listLikesId;
+    private Integer rate = 0;
 }

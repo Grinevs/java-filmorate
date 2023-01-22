@@ -14,4 +14,7 @@ public interface FilmStorage {
 
     List<Film> getAllFilms();
 
+    Film getFilmById(Integer id) throws NotFoundException;
+
+    void checkIdFilm(Integer id) throws NotFoundException;
 }

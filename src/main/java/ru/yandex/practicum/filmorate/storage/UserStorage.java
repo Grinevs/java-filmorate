@@ -11,7 +11,9 @@ public interface UserStorage {
 
     User addUser(User user) throws ValidationException, NotFoundException;
 
-    User getUserById(Integer id);
+    User getUserById(Integer id) throws NotFoundException;
 
     User patchUser(User user) throws NotFoundException, ValidationException;
+
+    void checkIdUser(User user) throws NotFoundException;
 }

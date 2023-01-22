@@ -1,42 +1,59 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 public class FilmController {
-    private final InMemoryFilmStorage filmStorage;
-    public FilmController(InMemoryFilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
+    private final FilmService filmService;
+
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
 
     @PostMapping("/films")
     public Film addFilm(@RequestBody Film film) throws ValidationException, NotFoundException {
-        filmStorage.addFilm(film);
+        filmService.addFilm(film);
         return film;
     }
 
     @PutMapping("/films")
-    public Film patchFilm(@RequestBody Film film) throws NotFoundException, ValidationException {
-        filmStorage.patchFilm(film);
-
+    public Film patchFilm(@RequestBody Film film) throws ValidationException, NotFoundException {
+        filmService.patchFilm(film);
         return film;
     }
 
     @GetMapping("/films")
     public List<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+        return filmService.getAllFilms();
     }
 
+    @GetMapping("/films/{id}")
+    public Film GetFilmById(@PathVariable Integer id) throws NotFoundException {
+        return filmService.GetFilmById(id);
+    }
+
+    @PutMapping("/films/{id}/like/{userId}")
+    public void addRate(@PathVariable Integer id,
+                        @PathVariable Integer userId) throws ValidationException, NotFoundException {
+        filmService.addlike(filmService.GetFilmById(id), userId);
+    }
+
+    @DeleteMapping("/films/{id}/like/{userId}")
+    public void removeRate(@PathVariable Integer id,
+                           @PathVariable Integer userId) throws ValidationException, NotFoundException {
+        filmService.removelike(filmService.GetFilmById(id), userId);
+    }
+
+    @GetMapping("/films/popular")
+    public List<Film> getMostRated(@RequestParam(defaultValue = "10") int count) {
+        return filmService.showTopTen(count);
+    }
 
 }

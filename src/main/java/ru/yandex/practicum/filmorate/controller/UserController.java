@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public User GetUserById(@PathVariable Integer id)  {
+    public User GetUserById(@PathVariable Integer id) throws NotFoundException {
         return userService.getUserById(id);
     }
 
@@ -53,4 +52,13 @@ public class UserController {
         userService.removeFriend(userService.getUserById(id), friendId);
     }
 
+    @GetMapping("/users/{id}/friends")
+    public List<User> getFriends(@PathVariable Integer id) throws NotFoundException {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) throws NotFoundException {
+        return userService.getCommonFriends(userService.getUserById(id), userService.getUserById(otherId));
+    }
 }
