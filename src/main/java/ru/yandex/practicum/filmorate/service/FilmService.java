@@ -66,7 +66,8 @@ public class FilmService {
     public List<Film> showTopTen(Integer count) {
         log.info("Запос на топ count={} фильмов", count);
         List<Film> topSortedFilms = new ArrayList<>();
-        topFilms.entrySet().stream().sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed());
+        topFilms.entrySet().stream().
+                sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed());
         topFilms.keySet().stream().forEach(f -> {
             try {
                 topSortedFilms.add(filmStorage.getFilmById(f));
