@@ -12,9 +12,9 @@ import java.util.*;
 @Slf4j
 @Service
 public class FilmService {
-    private FilmStorage filmStorage;
+    private final FilmStorage filmStorage;
 
-    private Map<Integer, Integer> topFilms = new HashMap<>();
+    private final Map<Integer, Integer> topFilms = new HashMap<>();
 
     public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
@@ -38,6 +38,7 @@ public class FilmService {
 
 
     public Film addlike(Film film, Integer userId) throws NotFoundException, ValidationException {
+        log.info("Запос пользователя id={} на лайк фильму filmId={}", userId, film.getId());
         film.getListLikesId().add(userId);
         film.setRate(film.getRate() + film.getListLikesId().size());
         filmStorage.patchFilm(film);
@@ -46,11 +47,12 @@ public class FilmService {
     }
 
     public Film removelike(Film film, Integer userId) throws NotFoundException, ValidationException {
+        log.info("Запос пользователя id={} на удаление лайка фильму filmId={}", userId, film.getId());
         if (!film.getListLikesId().contains(userId)) {
             log.error("Несуществует id={}", userId);
             throw new NotFoundException("id несуществует");
         }
-        film.getListLikesId().remove(userId); /// Если ид сузестввуент
+        film.getListLikesId().remove(userId);
         film.setRate(film.getRate() - film.getListLikesId().size());
         filmStorage.patchFilm(film);
         updateLikesCount(film);
@@ -62,6 +64,7 @@ public class FilmService {
     }
 
     public List<Film> showTopTen(Integer count) {
+        log.info("Запос на топ count={} фильмов", count);
         List<Film> topSortedFilms = new ArrayList<>();
         topFilms.entrySet().stream().sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed());
         topFilms.keySet().stream().forEach(f -> {

@@ -61,6 +61,7 @@ public class InMemoryFilmStorage implements FilmStorage{
 
     @Override
     public Film getFilmById(Integer id) throws NotFoundException {
+        log.debug("Запрос на существование id={}", id);
         checkIdFilm(id);
         return films.get(id);
     }

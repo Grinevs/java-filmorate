@@ -22,8 +22,9 @@ public class UserService {
     }
 
     public User addFriend(User user, Integer friendId) throws NotFoundException, ValidationException {
-        userStorage.checkIdUser(user);
-        userStorage.checkIdUser(userStorage.getUserById(friendId));
+        log.debug("Запрос на добавление в друзья id={} и  friendid={}", user.getId(), friendId);
+        userStorage.checkIdUser(user.getId());
+        userStorage.checkIdUser(friendId);
         user.getFriendList().add(friendId);
         User friend = userStorage.getUserById(friendId);
         friend.getFriendList().add(user.getId());
@@ -33,6 +34,7 @@ public class UserService {
     }
 
     public User removeFriend(User user, Integer friendId) throws NotFoundException, ValidationException {
+        log.debug("Запрос на удаление из друзей id={} и  friendid={}", user.getId(), friendId);
         if (!user.getFriendList().contains(friendId)) {
             throw new NotFoundException("друг с таким Id не найден");
         }
@@ -46,7 +48,7 @@ public class UserService {
 
     public List<User> getCommonFriends(User user, User friend) {
         log.info("Запрос общих друзей между id={} и friendId={}", user.getId(), friend.getId());
-        Set<Integer> listCommonFriends = user.getFriendList().stream().filter(f->
+        Set<Integer> listCommonFriends = user.getFriendList().stream().filter(f ->
                 friend.getFriendList().contains(f)).collect(Collectors.toSet());
         return idSetToUserList(listCommonFriends);
     }

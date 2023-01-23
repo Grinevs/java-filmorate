@@ -54,7 +54,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User patchUser(User user) throws NotFoundException, ValidationException {
         log.debug("Запрос на изменения пользователья id={}, Email={}", user.getId(), user.getEmail());
         userValidator.validation(user);
-        checkIdUser(user);
+        checkIdUser(user.getId());
         user.setFriendList(users.get(user.getId()).getFriendList());
         users.put(user.getId(), user);
         log.info("Пользователь изменен id={}", user.getId());
@@ -62,9 +62,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void checkIdUser(User user) throws NotFoundException {
-        if (!users.containsKey(user.getId())) {
-            log.error("Несуществует id={}", user.getId());
+    public void checkIdUser(Integer id) throws NotFoundException {
+        log.debug("Запрос на существование id={}", id);
+        if (!users.containsKey(id)) {
+            log.error("Несуществует id={}", id);
             throw new NotFoundException("id несуществует");
         }
     }
