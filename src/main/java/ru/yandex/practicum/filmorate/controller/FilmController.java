@@ -28,7 +28,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/films/{id}")
-    public Film removeFilmById(@PathVariable Integer id)  {
+    public Film removeFilmById(@PathVariable Integer id) {
         filmService.removeFilm(id);
         return null;
     }
@@ -39,19 +39,19 @@ public class FilmController {
     }
 
     @GetMapping("/films/{id}")
-    public Film GetFilmById(@PathVariable Integer id)  {
+    public Film GetFilmById(@PathVariable Integer id) {
         return filmService.GetFilmById(id);
     }
 
     @PutMapping("/films/{id}/like/{userId}")
     public void addRate(@PathVariable Integer id,
-                        @PathVariable Integer userId)  {
+                        @PathVariable Integer userId) {
         filmService.addlike(filmService.GetFilmById(id), userId);
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
     public void removeRate(@PathVariable Integer id,
-                           @PathVariable Integer userId)  {
+                           @PathVariable Integer userId) {
         filmService.removelike(filmService.GetFilmById(id), userId);
     }
 

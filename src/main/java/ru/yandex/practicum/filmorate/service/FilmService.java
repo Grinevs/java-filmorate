@@ -69,7 +69,7 @@ public class FilmService {
 
     public List<Film> showTopTen(Integer count) {
         log.info("Запрос на топ count={} фильмов", count);
-        return  filmStorage.getAllFilms().stream()
+        return filmStorage.getAllFilms().stream()
                 .sorted(Comparator.comparingLong(Film::getRate).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
