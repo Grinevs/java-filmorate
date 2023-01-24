@@ -21,7 +21,7 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public User addFriend(User user, Integer friendId) throws NotFoundException, ValidationException {
+    public User addFriend(User user, Integer friendId) {
         log.debug("Запрос на добавление в друзья id={} и  friendid={}", user.getId(), friendId);
         userStorage.checkIdUser(user.getId());
         userStorage.checkIdUser(friendId);
@@ -33,7 +33,7 @@ public class UserService {
         return user;
     }
 
-    public User removeFriend(User user, Integer friendId) throws NotFoundException, ValidationException {
+    public User removeFriend(User user, Integer friendId) {
         log.debug("Запрос на удаление из друзей id={} и  friendid={}", user.getId(), friendId);
         if (!user.getFriendList().contains(friendId)) {
             throw new NotFoundException("друг с таким Id не найден");
@@ -53,12 +53,12 @@ public class UserService {
         return idSetToUserList(listCommonFriends);
     }
 
-    public User addUser(User user) throws ValidationException, NotFoundException {
+    public User addUser(User user) {
         userStorage.addUser(user);
         return user;
     }
 
-    public User patchUser(User user) throws ValidationException, NotFoundException {
+    public User patchUser(User user) {
         userStorage.patchUser(user);
         return user;
     }
@@ -67,12 +67,16 @@ public class UserService {
         return userStorage.getUserList();
     }
 
-    public User getUserById(Integer id) throws NotFoundException {
+    public User getUserById(Integer id) {
         return userStorage.getUserById(id);
     }
 
-    public List<User> getFriends(Integer id) throws NotFoundException {
+    public List<User> getFriends(Integer id) {
         return idSetToUserList(userStorage.getUserById(id).getFriendList());
+    }
+
+    public void removeUser(Integer id) {
+        userStorage.removeUser(id);
     }
 
     private List<User> idSetToUserList(Set<Integer> friendsIdSet) {

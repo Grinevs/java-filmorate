@@ -3,11 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -20,13 +20,13 @@ public class FilmService {
         this.filmStorage = filmStorage;
     }
 
-    public Film addFilm(Film film) throws ValidationException, NotFoundException {
+    public Film addFilm(Film film) {
         filmStorage.addFilm(film);
         updateLikesCount(film);
         return film;
     }
 
-    public Film patchFilm(Film film) throws ValidationException, NotFoundException {
+    public Film patchFilm(Film film) {
         filmStorage.patchFilm(film);
         updateLikesCount(film);
         return film;
@@ -37,7 +37,7 @@ public class FilmService {
     }
 
 
-    public Film addlike(Film film, Integer userId) throws NotFoundException, ValidationException {
+    public Film addlike(Film film, Integer userId) {
         log.info("Запос пользователя id={} на лайк фильму filmId={}", userId, film.getId());
         film.getListLikesId().add(userId);
         film.setRate(film.getRate() + film.getListLikesId().size());
@@ -46,7 +46,7 @@ public class FilmService {
         return film;
     }
 
-    public Film removelike(Film film, Integer userId) throws NotFoundException, ValidationException {
+    public Film removelike(Film film, Integer userId) {
         log.info("Запос пользователя id={} на удаление лайка фильму filmId={}", userId, film.getId());
         if (!film.getListLikesId().contains(userId)) {
             log.error("Несуществует id={}", userId);
@@ -63,25 +63,16 @@ public class FilmService {
         topFilms.put(film.getId(), film.getRate());
     }
 
+    public void removeFilm(Integer id) {
+        filmStorage.removeFilm(id);
+    }
+
     public List<Film> showTopTen(Integer count) {
-        log.info("Запос на топ count={} фильмов", count);
-        List<Film> topSortedFilms = new ArrayList<>();
-        topFilms.entrySet().stream().
-                sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed());
-        topFilms.keySet().stream().forEach(f -> {
-            try {
-                topSortedFilms.add(filmStorage.getFilmById(f));
-            } catch (NotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        Collections.reverse(topSortedFilms);
-        List<Film> topTenFilms = new ArrayList<>();
-        for (int i = 0; (i < topSortedFilms.size() && i < count); i++) {
-            topTenFilms.add(topSortedFilms.get(i));
-        }
-        log.info("Фильм изменен size={}, ", topSortedFilms);
-        return topTenFilms;
+        log.info("Запрос на топ count={} фильмов", count);
+        return  filmStorage.getAllFilms().stream()
+                .sorted(Comparator.comparingLong(Film::getRate).reversed())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     public Film GetFilmById(Integer id) throws NotFoundException {

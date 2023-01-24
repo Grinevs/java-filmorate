@@ -2,11 +2,14 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -34,6 +37,20 @@ public class UserValidator {
         if (user.getBirthday().isAfter(LocalDate.now())) {
             log.error("Неверный формат ввода дня рождения id={}", user.getId());
             throw new ValidationException("Неверная дата рождения");
+        }
+    }
+
+    public void checkExistId(Integer id, Map<Integer, User> users) {
+        if (!users.containsKey(id)) {
+            log.error("Несуществует id={}", id);
+            throw new NotFoundException("id несуществует");
+        }
+    }
+
+    public void checkExistEmailUser(User user, Map<Integer, User> users) {
+        if (users.values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
+            log.info("Пользователь уже существует " + user.getEmail());
+            throw new ExistException(user.getEmail());
         }
     }
 }

@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserIdGenerator;
 import ru.yandex.practicum.filmorate.service.UserValidator;
@@ -30,10 +29,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User addUser(User user) throws ValidationException, NotFoundException {
+    public User addUser(User user) {
         log.debug("Запрос на добавление пользователя id={}, Email={}", user.getId(), user.getEmail());
         userValidator.validation(user);
-        checkExistEmailUser(user);
+        userValidator.checkExistEmailUser(user, users);
         user.setId(userIdGenerator.generateId());
         user.setFriendList(new HashSet<>());
         users.put(user.getId(), user);
@@ -42,16 +41,14 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(Integer id) throws NotFoundException {
+    public User getUserById(Integer id) {
         log.debug("Запрос на получение данных пользовталя id={}", id);
-        if (!users.containsKey(id)) {
-            log.error("Несуществует id={}", id);
-            throw new NotFoundException("id несуществует");}
+        userValidator.checkExistId(id, users);
         return users.get(id);
     }
 
     @Override
-    public User patchUser(User user) throws NotFoundException, ValidationException {
+    public User patchUser(User user) {
         log.debug("Запрос на изменения пользователья id={}, Email={}", user.getId(), user.getEmail());
         userValidator.validation(user);
         checkIdUser(user.getId());
@@ -62,18 +59,15 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void checkIdUser(Integer id) throws NotFoundException {
+    public void checkIdUser(Integer id) {
         log.debug("Запрос на существование id={}", id);
-        if (!users.containsKey(id)) {
-            log.error("Несуществует id={}", id);
-            throw new NotFoundException("id несуществует");
-        }
+        userValidator.checkExistId(id, users);
     }
 
-    private void checkExistEmailUser(User user) {
-        if (users.values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
-            log.info("Пользователь уже существует " + user.getEmail());
-            throw new ExistException(user.getEmail());
-        }
+    @Override
+    public void removeUser(Integer id) {
+        log.debug("Запрос на удаление id={}", id);
+        checkIdUser(id);
+        users.remove(id);
     }
 }

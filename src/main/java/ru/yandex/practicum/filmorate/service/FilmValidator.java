@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -34,6 +36,22 @@ public class FilmValidator {
         if (film.getDuration() < 0) {
             log.error("Неверная продолжительность фильма id={}", film.getId());
             throw new ValidationException("Продолжительсность фильма не задана");
+        }
+    }
+
+    public void checkSameFilm(Film film, Map<Integer, Film> films) {
+        if (films.values().stream().anyMatch(f ->
+                (f.getName().equals(film.getName()) &&
+                        f.getReleaseDate().equals(film.getReleaseDate())))) {
+            log.info("Фильм уже существует " + film.getName());
+            throw new ExistException(film.getName());
+        }
+    }
+
+    public void checkExistId(Film film, Map<Integer, Film> films) {
+        if (!films.containsKey(film.getId())) {
+            log.error("Несуществующий id={}", film.getId());
+            throw new NotFoundException("Несуществующий id");
         }
     }
 }

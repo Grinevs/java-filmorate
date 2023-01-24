@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmIdGenerator;
 import ru.yandex.practicum.filmorate.service.FilmValidator;
@@ -13,7 +11,7 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class InMemoryFilmStorage implements FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
     private final FilmIdGenerator filmIdGenerator;
     private final FilmValidator filmValidator;
     private final Map<Integer, Film> films = new HashMap<>();
@@ -24,32 +22,26 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Film addFilm(Film film) throws ValidationException, NotFoundException {
-        log.debug("Запрос на добавление фильма id={}, Name={}", film.getId(), film.getName());;
+    public Film addFilm(Film film) {
+        log.debug("Запрос на добавление фильма id={}, Name={}", film.getId(), film.getName());
         filmValidator.validation(film);
-        if (films.values().stream().anyMatch(f -> f.getName().equals(film.getName()))) {
-            log.info("Фильм уже существует " + film.getName());
-            throw new ExistException(film.getName());
-        }
+        filmValidator.checkSameFilm(film, films);
         film.setId(filmIdGenerator.generateId());
         film.setListLikesId(new HashSet<>());
         films.put(film.getId(), film);
-        log.info("Фильм добавлен id={}, Name={}", film.getId() ,film.getName());
+        log.info("Фильм добавлен id={}, Name={}", film.getId(), film.getName());
         return film;
     }
 
     @Override
-    public Film patchFilm(Film film) throws NotFoundException, ValidationException {
-        log.debug("Запрос на изменения фильма id={}, Name={}",film.getId(), film.getName());
+    public Film patchFilm(Film film) {
+        log.debug("Запрос на изменения фильма id={}, Name={}", film.getId(), film.getName());
         checkIdFilm(film.getId());
         filmValidator.validation(film);
-        if (!films.containsKey(film.getId())) {
-            log.error("Несуществующий id={}", film.getId());
-            throw new NotFoundException("Несуществующий id");
-        }
+        filmValidator.checkExistId(film, films);
         film.setListLikesId(films.get(film.getId()).getListLikesId());
         films.put(film.getId(), film);
-        log.info("Фильм изменен id={}, Name={}", film.getId() ,film.getName());
+        log.info("Фильм изменен id={}, Name={}", film.getId(), film.getName());
         return film;
     }
 
@@ -60,14 +52,21 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Film getFilmById(Integer id) throws NotFoundException {
+    public Film getFilmById(Integer id) {
         log.debug("Запрос на существование id={}", id);
         checkIdFilm(id);
         return films.get(id);
     }
 
     @Override
-    public void checkIdFilm(Integer id) throws NotFoundException {
+    public void removeFilm(Integer id) {
+        log.debug("Запрос на удаление фильма id={}", id);
+        checkIdFilm(id);
+        films.remove(id);
+    }
+
+    @Override
+    public void checkIdFilm(Integer id) {
         if (!films.containsKey(id)) {
             log.error("Несуществует id={}", id);
             throw new NotFoundException("id несуществует");

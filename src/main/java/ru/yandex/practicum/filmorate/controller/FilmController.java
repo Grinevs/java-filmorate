@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -18,15 +16,21 @@ public class FilmController {
 
 
     @PostMapping("/films")
-    public Film addFilm(@RequestBody Film film) throws ValidationException, NotFoundException {
+    public Film addFilm(@RequestBody Film film) {
         filmService.addFilm(film);
         return film;
     }
 
     @PutMapping("/films")
-    public Film patchFilm(@RequestBody Film film) throws ValidationException, NotFoundException {
+    public Film patchFilm(@RequestBody Film film) {
         filmService.patchFilm(film);
         return film;
+    }
+
+    @DeleteMapping("/films/{id}")
+    public Film removeFilmById(@PathVariable Integer id)  {
+        filmService.removeFilm(id);
+        return null;
     }
 
     @GetMapping("/films")
@@ -35,19 +39,19 @@ public class FilmController {
     }
 
     @GetMapping("/films/{id}")
-    public Film GetFilmById(@PathVariable Integer id) throws NotFoundException {
+    public Film GetFilmById(@PathVariable Integer id)  {
         return filmService.GetFilmById(id);
     }
 
     @PutMapping("/films/{id}/like/{userId}")
     public void addRate(@PathVariable Integer id,
-                        @PathVariable Integer userId) throws ValidationException, NotFoundException {
+                        @PathVariable Integer userId)  {
         filmService.addlike(filmService.GetFilmById(id), userId);
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
     public void removeRate(@PathVariable Integer id,
-                           @PathVariable Integer userId) throws ValidationException, NotFoundException {
+                           @PathVariable Integer userId)  {
         filmService.removelike(filmService.GetFilmById(id), userId);
     }
 
