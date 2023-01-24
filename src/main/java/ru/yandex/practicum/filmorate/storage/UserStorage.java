@@ -15,5 +15,5 @@ public interface UserStorage {
 
     void checkIdUser(Integer id);
 
-    public void removeUser(Integer id);
+    void removeUser(Integer id);
 }
