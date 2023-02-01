@@ -1,87 +1,63 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ExistException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmIdGenerator;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@Slf4j
 @RestController
 public class FilmController {
-    private final int MAX_DESCRIPTION_LENGTH = 200;
-    private final LocalDate RELEASE_DATE = LocalDate.of(1895, 12, 28);
+    private final FilmService filmService;
 
-    private final FilmIdGenerator filmIdGenerator;
-    private final Map<Integer, Film> films = new HashMap<>();
-
-    public FilmController(FilmIdGenerator filmIdGenerator) {
-        this.filmIdGenerator = filmIdGenerator;
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
 
     @PostMapping("/films")
-    public Film addFilm(@RequestBody Film film) throws ValidationException, NotFoundException {
-        log.debug("Запрос на добавление фильма id={}, Name={}", film.getId(), film.getName());
-        validation(film);
-        if (films.values().stream().anyMatch(f -> f.getName().equals(film.getName()))) {
-            log.info("Фильм уже существует " + film.getName());
-            throw new ExistException(film.getName());
-        }
-        film.setId(filmIdGenerator.generateId());
-        films.put(film.getId(), film);
-        log.info("Фильм добавлен id={}, Name={}", film.getId() ,film.getName());
+    public Film addFilm(@RequestBody Film film) {
+        filmService.addFilm(film);
         return film;
     }
 
     @PutMapping("/films")
-    public Film patchFilm(@RequestBody Film film) throws NotFoundException, ValidationException {
-        log.debug("Запрос на изменения фильма id={}, Name={}",film.getId(), film.getName());
-        if (!films.containsKey(film.getId())) {
-            log.error("Несуществующий id={}", film.getId());
-            throw new NotFoundException("Несуществующий id");
-        }
-        validation(film);
-        films.put(film.getId(), film);
-        log.info("Фильм изменен id={}, Name={}", film.getId() ,film.getName());
+    public Film patchFilm(@RequestBody Film film) {
+        filmService.patchFilm(film);
         return film;
+    }
+
+    @DeleteMapping("/films/{id}")
+    public Film removeFilmById(@PathVariable Integer id) {
+        filmService.removeFilm(id);
+        return null;
     }
 
     @GetMapping("/films")
     public List<Film> getAllFilms() {
-        log.debug("Запрос на получение данных всех фильмов");
-        return new ArrayList<>(films.values());
+        return filmService.getAllFilms();
     }
 
-    public void validation(Film film) throws ValidationException, NotFoundException {
-        if (film.getId() < 0) {
-            log.error("Неверный id={}", film.getId());
-            throw new NotFoundException("Неверный id");
-        }
-        if (film.getName().isEmpty()) {
-            log.error("Пустое имя id={}", film.getId());
-            throw new ValidationException("Пустое имя");
-        }
-        if (film.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
-            log.error("Описание длинной свыше " + MAX_DESCRIPTION_LENGTH + " id={}", film.getId());
-            throw new ValidationException("Описание свыше 200 сомволов");
-        }
-        if (film.getReleaseDate().isBefore(RELEASE_DATE)) {
-            log.error("Дата выхода раньше " + RELEASE_DATE + " id={}", film.getId());
-            throw new ValidationException("Фильм должен быть новее " + RELEASE_DATE);
-        }
-        if (film.getDuration() < 0) {
-            log.error("Неверная продолжительность фильма id={}", film.getId());
-            throw new ValidationException("Продолжительсность фильма не задана");
-        }
+    @GetMapping("/films/{id}")
+    public Film GetFilmById(@PathVariable Integer id) {
+        return filmService.GetFilmById(id);
     }
+
+    @PutMapping("/films/{id}/like/{userId}")
+    public void addRate(@PathVariable Integer id,
+                        @PathVariable Integer userId) {
+        filmService.addlike(filmService.GetFilmById(id), userId);
+    }
+
+    @DeleteMapping("/films/{id}/like/{userId}")
+    public void removeRate(@PathVariable Integer id,
+                           @PathVariable Integer userId) {
+        filmService.removelike(filmService.GetFilmById(id), userId);
+    }
+
+    @GetMapping("/films/popular")
+    public List<Film> getMostRated(@RequestParam(defaultValue = "10") int count) {
+        return filmService.showTopTen(count);
+    }
+
 }
