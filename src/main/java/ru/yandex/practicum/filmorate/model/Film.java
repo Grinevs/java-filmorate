@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -11,4 +12,6 @@ public class Film {
     private String name;
     private LocalDate releaseDate;
     private int duration;
+    private Set<Integer> listLikesId;
+    private Integer rate = 0;
 }

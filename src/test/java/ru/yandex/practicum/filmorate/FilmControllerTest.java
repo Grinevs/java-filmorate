@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmIdGenerator;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
@@ -24,8 +26,9 @@ public class FilmControllerTest {
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(2020, 01, 01)));
         film.setDuration(120);
-        FilmIdGenerator filmIdGenerator = new FilmIdGenerator();
-        FilmController filmController = new FilmController(filmIdGenerator);
+        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
+        FilmService filmService = new FilmService(filmStorage);
+        FilmController filmController = new FilmController(filmService);
         filmController.addFilm(film);
         assertEquals(1, filmController.getAllFilms().size());
     }
@@ -37,8 +40,9 @@ public class FilmControllerTest {
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(2020, 01, 01)));
         film.setDuration(120);
-        FilmIdGenerator filmIdGenerator = new FilmIdGenerator();
-        FilmController filmController = new FilmController(filmIdGenerator);
+        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
+        FilmService filmService = new FilmService(filmStorage);
+        FilmController filmController = new FilmController(filmService);
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
         });
@@ -51,8 +55,9 @@ public class FilmControllerTest {
         film.setDescription("description".repeat(100));
         film.setReleaseDate((LocalDate.of(2020, 01, 01)));
         film.setDuration(120);
-        FilmIdGenerator filmIdGenerator = new FilmIdGenerator();
-        FilmController filmController = new FilmController(filmIdGenerator);
+        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
+        FilmService filmService = new FilmService(filmStorage);
+        FilmController filmController = new FilmController(filmService);
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
         });
@@ -65,8 +70,9 @@ public class FilmControllerTest {
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(1800, 01, 01)));
         film.setDuration(120);
-        FilmIdGenerator filmIdGenerator = new FilmIdGenerator();
-        FilmController filmController = new FilmController(filmIdGenerator);
+        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
+        FilmService filmService = new FilmService(filmStorage);
+        FilmController filmController = new FilmController(filmService);
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
         });
@@ -79,8 +85,9 @@ public class FilmControllerTest {
         film.setDescription("description");
         film.setReleaseDate((LocalDate.of(2020, 01, 01)));
         film.setDuration(-5);
-        FilmIdGenerator filmIdGenerator = new FilmIdGenerator();
-        FilmController filmController = new FilmController(filmIdGenerator);
+        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
+        FilmService filmService = new FilmService(filmStorage);
+        FilmController filmController = new FilmController(filmService);
         assertThrows(ValidationException.class, () -> {
             filmController.addFilm(film);
         });
