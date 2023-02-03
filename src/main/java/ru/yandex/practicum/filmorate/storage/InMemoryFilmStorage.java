@@ -17,8 +17,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
 
     public InMemoryFilmStorage() {
-        this.filmValidator = new FilmValidator();
         this.filmIdGenerator = new FilmIdGenerator();
+        this.filmValidator = new FilmValidator();
     }
 
     @Override
